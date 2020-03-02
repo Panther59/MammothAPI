@@ -37,6 +37,11 @@ namespace MammothAPI.Models
 		public string LastName { get; set; }
 
 		/// <summary>
+		/// Gets or sets the LoginID
+		/// </summary>
+		public int? LoginID { get; internal set; }
+
+		/// <summary>
 		/// Gets or sets the LoginName
 		/// </summary>
 		public string LoginName { get; set; }

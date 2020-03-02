@@ -29,8 +29,8 @@ namespace MammothAPI.Models
 		public Store Store { get; set; }
 
 		/// <summary>
-		/// Gets or sets the StoreSale
+		/// Gets or sets the Sale
 		/// </summary>
-		public StoreSale StoreSale { get; set; }
+		public StoreSale Sale { get; set; }
 	}
 }

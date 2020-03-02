@@ -20,6 +20,7 @@ namespace MammothAPI.Services
 				LastName = user.LastName,
 				IsActive = user.IsActive,
 				Type = (Models.TypeOfUser)user.Type,
+				LoginID = user.Login.Id,
 			};
 		}
 

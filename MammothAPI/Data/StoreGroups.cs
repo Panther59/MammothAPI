@@ -16,7 +16,7 @@ namespace MammothAPI.Data
         public DateTime ModifiedOn { get; set; }
         public int ModifiedBy { get; set; }
 
-        public virtual Users ModifiedByNavigation { get; set; }
+        public virtual Logins ModifiedByNavigation { get; set; }
         public virtual ICollection<Stores> Stores { get; set; }
     }
 }

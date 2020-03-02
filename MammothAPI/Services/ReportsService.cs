@@ -44,16 +44,16 @@ namespace MammothAPI.Services
 		public async Task<List<StoreSaleReport>> GetDataSubmitStatusAsync(DateTime businessDate)
 		{
 			var result = await this.mammothDBContext.Stores
-				.Include(x => x.SalesStore)
+				.Include(x => x.Sales)
 				.Include(x => x.ProductSalesStore)
 				.Select(x => new
 				{
 					Store = x,
-					IsDataSumitted = x.SalesStore != null &&
-					x.SalesStore.Any(x => x.BusinessDate == businessDate) &&
+					IsDataSumitted = x.Sales != null &&
+					x.Sales.Any(x => x.BusinessDate == businessDate) &&
 					x.ProductSalesStore != null &&
 					x.ProductSalesStore.Any(x => x.BusinessDate == businessDate),
-					StoreSale = x.SalesStore != null ? x.SalesStore.FirstOrDefault(x => x.BusinessDate == businessDate) : null,
+					StoreSale = x.Sales != null ? x.Sales.FirstOrDefault(x => x.BusinessDate == businessDate) : null,
 					ProductsSale = x.ProductSalesStore != null ? x.ProductSalesStore.Where(x => x.BusinessDate == businessDate) : null,
 				}).ToListAsync();
 
@@ -61,7 +61,7 @@ namespace MammothAPI.Services
 			{
 				Store = this.mappers.MapStore(x.Store),
 				IsDataSumitted = x.IsDataSumitted,
-				StoreSale = this.mappers.MapSale(x.StoreSale),
+				Sale = this.mappers.MapSale(x.StoreSale),
 				ProductsSale = x.ProductsSale.Select(y => this.mappers.MapSale(y)),
 			}).ToList();
 		}

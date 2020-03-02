@@ -10,7 +10,8 @@ namespace MammothAPI.Services
 	using MammothAPI.Data;
 	using MammothAPI.Models;
 	using Microsoft.EntityFrameworkCore;
-	using System.Linq;
+    using System;
+    using System.Linq;
 	using System.Threading.Tasks;
 
 	/// <summary>
@@ -54,17 +55,24 @@ namespace MammothAPI.Services
 		{
 			var encPassword = this.encryptionHelper.Encrypt(request.Password);
 			var store = await this.mammothDBContext.Stores
-				.Include(x => x.Logins)
-				.Where(x => x.Code.ToLower() == request.LoginName.ToLower() && x.Logins.Any(l => l.Password == encPassword))
+				.Include(x => x.Login)
+				.Where(x => x.Code.ToLower() == request.LoginName.ToLower())
 				.FirstOrDefaultAsync();
 
 			if (store != null)
 			{
-				return this.MapStore(store);
+				if (store.Login.Password == encPassword)
+				{
+					return this.mappers.MapStore(store);
+				}
+				else
+				{
+					throw new UnauthorizedAccessException("Invalid credential");
+				}
 			}
 			else
 			{
-				return null;
+				throw new UnauthorizedAccessException("Login name doesn't exists");
 			}
 		}
 
@@ -77,17 +85,24 @@ namespace MammothAPI.Services
 		{
 			var encPassword = this.encryptionHelper.Encrypt(request.Password);
 			var user = await this.mammothDBContext.Users
-				.Include(x => x.LoginsUser)
-				.Where(x => x.LoginName.ToLower() == request.LoginName.ToLower() && x.LoginsUser.Any(l => l.Password == encPassword))
+				.Include(x => x.Login)
+				.Where(x => x.LoginName.ToLower() == request.LoginName.ToLower())
 				.FirstOrDefaultAsync();
 
 			if (user != null)
 			{
-				return this.mappers.MapUser(user);
+				if (user.Login.Password == encPassword)
+				{
+					return this.mappers.MapUser(user);
+				}
+				else
+				{
+					throw new UnauthorizedAccessException("Invalid credential");
+				}
 			}
 			else
 			{
-				return null;
+				throw new UnauthorizedAccessException("Login name doesn't exists");
 			}
 		}
 

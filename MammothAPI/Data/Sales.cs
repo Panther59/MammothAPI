@@ -22,7 +22,7 @@ namespace MammothAPI.Data
         public DateTime LastModifiedOn { get; set; }
         public int LastModifiedBy { get; set; }
 
-        public virtual Stores LastModifiedByNavigation { get; set; }
+        public virtual Logins LastModifiedByNavigation { get; set; }
         public virtual Stores Store { get; set; }
     }
 }

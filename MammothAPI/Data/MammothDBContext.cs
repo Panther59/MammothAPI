@@ -24,15 +24,6 @@ namespace MammothAPI.Data
         public virtual DbSet<Stores> Stores { get; set; }
         public virtual DbSet<Users> Users { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MammothDB;Integrated Security=true;persist security info=true;");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Logins>(entity =>
@@ -41,31 +32,10 @@ namespace MammothAPI.Data
 
                 entity.Property(e => e.LastLogin).HasColumnType("datetime");
 
-                entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
-
                 entity.Property(e => e.Password)
+                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
-
-                entity.Property(e => e.StoreId).HasColumnName("StoreID");
-
-                entity.Property(e => e.UserId).HasColumnName("UserID");
-
-                entity.HasOne(d => d.ModifiedByNavigation)
-                    .WithMany(p => p.LoginsModifiedByNavigation)
-                    .HasForeignKey(d => d.ModifiedBy)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Logins_Users_Modified");
-
-                entity.HasOne(d => d.Store)
-                    .WithMany(p => p.Logins)
-                    .HasForeignKey(d => d.StoreId)
-                    .HasConstraintName("FK_Logins_Stores");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.LoginsUser)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK_Logins_Users");
             });
 
             modelBuilder.Entity<ProductGroups>(entity =>
@@ -83,7 +53,7 @@ namespace MammothAPI.Data
                     .WithMany(p => p.ProductGroups)
                     .HasForeignKey(d => d.LastModifiedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ProductGroups_Users");
+                    .HasConstraintName("FK_ProductGroups_Logins");
             });
 
             modelBuilder.Entity<ProductSales>(entity =>
@@ -111,7 +81,7 @@ namespace MammothAPI.Data
                     .WithMany(p => p.ProductSales)
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ProductSales_Products");
+                    .HasConstraintName("FK_ProductSales_Logins");
 
                 entity.HasOne(d => d.Store)
                     .WithMany(p => p.ProductSalesStore)
@@ -146,7 +116,7 @@ namespace MammothAPI.Data
                     .WithMany(p => p.Products)
                     .HasForeignKey(d => d.LastModifiedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Products_Users");
+                    .HasConstraintName("FK_Products_Logins");
             });
 
             modelBuilder.Entity<Sales>(entity =>
@@ -163,13 +133,13 @@ namespace MammothAPI.Data
                 entity.Property(e => e.StoreId).HasColumnName("StoreID");
 
                 entity.HasOne(d => d.LastModifiedByNavigation)
-                    .WithMany(p => p.SalesLastModifiedByNavigation)
+                    .WithMany(p => p.Sales)
                     .HasForeignKey(d => d.LastModifiedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Sales_Stores_Modified");
+                    .HasConstraintName("FK_Sales_Logins");
 
                 entity.HasOne(d => d.Store)
-                    .WithMany(p => p.SalesStore)
+                    .WithMany(p => p.Sales)
                     .HasForeignKey(d => d.StoreId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Sales_Stores");
@@ -195,7 +165,7 @@ namespace MammothAPI.Data
                     .WithMany(p => p.StoreGroups)
                     .HasForeignKey(d => d.ModifiedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_StoreGroups_Users");
+                    .HasConstraintName("FK_StoreGroups_Logins");
             });
 
             modelBuilder.Entity<Stores>(entity =>
@@ -209,6 +179,8 @@ namespace MammothAPI.Data
 
                 entity.Property(e => e.GroupId).HasColumnName("GroupID");
 
+                entity.Property(e => e.LoginId).HasColumnName("LoginID");
+
                 entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Name)
@@ -221,6 +193,12 @@ namespace MammothAPI.Data
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Stores_Stores");
+
+                entity.HasOne(d => d.Login)
+                    .WithMany(p => p.Stores)
+                    .HasForeignKey(d => d.LoginId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Stores_Logins");
 
                 entity.HasOne(d => d.ModifiedByNavigation)
                     .WithMany(p => p.Stores)
@@ -250,16 +228,24 @@ namespace MammothAPI.Data
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
+                entity.Property(e => e.LoginId).HasColumnName("LoginID");
+
                 entity.Property(e => e.LoginName)
                     .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.LastModifiedByNavigation)
-                    .WithMany(p => p.InverseLastModifiedByNavigation)
+                    .WithMany(p => p.UsersLastModifiedByNavigation)
                     .HasForeignKey(d => d.LastModifiedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Users_Users");
+                    .HasConstraintName("FK_Users_LastModified");
+
+                entity.HasOne(d => d.Login)
+                    .WithMany(p => p.UsersLogin)
+                    .HasForeignKey(d => d.LoginId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Users_Logins");
             });
 
             OnModelCreatingPartial(modelBuilder);

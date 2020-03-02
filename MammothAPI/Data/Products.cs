@@ -5,11 +5,6 @@ namespace MammothAPI.Data
 {
     public partial class Products
     {
-        public Products()
-        {
-            ProductSales = new HashSet<ProductSales>();
-        }
-
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -19,7 +14,6 @@ namespace MammothAPI.Data
         public int LastModifiedBy { get; set; }
 
         public virtual ProductGroups Group { get; set; }
-        public virtual Users LastModifiedByNavigation { get; set; }
-        public virtual ICollection<ProductSales> ProductSales { get; set; }
+        public virtual Logins LastModifiedByNavigation { get; set; }
     }
 }
