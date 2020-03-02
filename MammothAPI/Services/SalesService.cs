@@ -77,7 +77,7 @@ namespace MammothAPI.Services
 			var sales = productSales.Select(sale => new ProductSales
 			{
 				BusinessDate = date,
-				ModifiedBy = this.session.StoreID.Value,
+				ModifiedBy = this.session.LoginID.Value,
 				ModifiedOn = DateTime.Now,
 				ProductId = sale.ProductID.Value,
 				SaleCount = sale.SaleCount.Value,
@@ -114,11 +114,15 @@ namespace MammothAPI.Services
 				existingSale.PureMarquee = sale.PureMarquee;
 				existingSale.TotalMarquee = sale.TotalMarquee;
 				existingSale.TotalOnline = sale.TotalOnline;
+				existingSale.LastModifiedBy = this.session.LoginID.Value;
+				existingSale.LastModifiedOn = DateTime.Now;
 				this.mammothDBContext.Entry(existingSale).State = EntityState.Modified;
 			}
 			else
 			{
 				var saleData = this.mappers.MapSale(sale);
+				saleData.LastModifiedBy = this.session.LoginID.Value;
+				saleData.LastModifiedOn = DateTime.Now;
 
 				this.mammothDBContext.Sales.Add(saleData);
 			}

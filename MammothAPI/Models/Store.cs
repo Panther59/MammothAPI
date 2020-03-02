@@ -22,6 +22,11 @@ namespace MammothAPI.Models
 		public int? ID { get; set; }
 
 		/// <summary>
+		/// Gets or sets the LoginID
+		/// </summary>
+		public int LoginID { get; set; }
+
+		/// <summary>
 		/// Gets or sets the Name
 		/// </summary>
 		public string Name { get; set; }

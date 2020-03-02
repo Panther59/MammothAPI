@@ -12,9 +12,18 @@ namespace MammothAPI.Common
 	public interface ISession
 	{
 		/// <summary>
+		/// Gets the LoginID
+		/// </summary>
+		int? LoginID { get; }
+
+		/// <summary>
+		/// Gets the StoreID
+		/// </summary>
+		int? StoreID { get; }
+
+		/// <summary>
 		/// Gets the UserID
 		/// </summary>
-		public int? UserID { get; }
-		public int? StoreID { get; }
+		int? UserID { get; }
 	}
 }

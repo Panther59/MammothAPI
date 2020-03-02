@@ -42,6 +42,7 @@ namespace MammothAPI.Services
 				ID = store.Id,
 				Code = store.Code,
 				Name = store.Name,
+				LoginID = store.LoginId
 			};
 		}
 

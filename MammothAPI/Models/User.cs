@@ -39,7 +39,7 @@ namespace MammothAPI.Models
 		/// <summary>
 		/// Gets or sets the LoginID
 		/// </summary>
-		public int? LoginID { get; internal set; }
+		public int? LoginID { get; set; }
 
 		/// <summary>
 		/// Gets or sets the LoginName

@@ -105,20 +105,5 @@ namespace MammothAPI.Services
 				throw new UnauthorizedAccessException("Login name doesn't exists");
 			}
 		}
-
-		/// <summary>
-		/// The MapStore
-		/// </summary>
-		/// <param name="store">The store<see cref="Stores"/></param>
-		/// <returns>The <see cref="Store"/></returns>
-		private Store MapStore(Stores store)
-		{
-			return new Store
-			{
-				ID = store.Id,
-				Code = store.Code,
-				Name = store.Name,
-			};
-		}
 	}
 }

@@ -124,7 +124,8 @@ namespace MammothAPI.Controllers
 		private string GenerateJSONWebToken(Store store)
 		{
 			var claims = new[] {
-						new Claim(ClaimTypes.NameIdentifier, store.ID.ToString()),
+						new Claim(ClaimTypes.NameIdentifier, store.LoginID.ToString()),
+						new Claim("StoreID", store.ID.ToString()),
 						new Claim(ClaimTypes.Name, store.Code),
 						new Claim(JwtRegisteredClaimNames.Typ, "Store"),
 						new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) };
@@ -140,7 +141,8 @@ namespace MammothAPI.Controllers
 		private string GenerateJSONWebToken(User user)
 		{
 			var claims = new[] {
-						new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
+						new Claim(ClaimTypes.NameIdentifier, user.LoginID.ToString()),
+						new Claim("UserID", user.ID.ToString()),
 						new Claim(ClaimTypes.GivenName, user.FirstName),
 						new Claim(ClaimTypes.Surname, user.LastName),
 						new Claim(ClaimTypes.Name, user.LoginName),

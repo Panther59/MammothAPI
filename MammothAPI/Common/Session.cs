@@ -30,22 +30,18 @@ namespace MammothAPI.Common
 			this.httpContextAccessor = httpContextAccessor;
 		}
 
-		/// <inheritdoc />
-		public int? UserID
+		/// <summary>
+		/// Gets the LoginID
+		/// </summary>
+		public int? LoginID
 		{
 			get
 			{
-				if (this.httpContextAccessor.HttpContext.User.Claims.Any(x => x.Type == JwtRegisteredClaimNames.Typ && x.Value == "User"))
+				var idText = this.httpContextAccessor.HttpContext.User.Claims
+					.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+				if (int.TryParse(idText, out int id))
 				{
-					var idText = this.httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-					if (int.TryParse(idText, out int id))
-					{
-						return id;
-					}
-					else
-					{
-						return null;
-					}
+					return id;
 				}
 				else
 				{
@@ -78,5 +74,28 @@ namespace MammothAPI.Common
 			}
 		}
 
+		/// <inheritdoc />
+		public int? UserID
+		{
+			get
+			{
+				if (this.httpContextAccessor.HttpContext.User.Claims.Any(x => x.Type == JwtRegisteredClaimNames.Typ && x.Value == "User"))
+				{
+					var idText = this.httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+					if (int.TryParse(idText, out int id))
+					{
+						return id;
+					}
+					else
+					{
+						return null;
+					}
+				}
+				else
+				{
+					return null;
+				}
+			}
+		}
 	}
 }
