@@ -21,8 +21,8 @@ namespace MammothAPI.Controllers
 	/// <summary>
 	/// Defines the <see cref="AuthenticateController" />
 	/// </summary>
+	[Route("api/[controller]/[action]")]
 	[ApiController]
-	[Route("[controller]")]
 	public class AuthenticateController : ControllerBase
 	{
 		private readonly ILogger<AuthenticateController> logger;
@@ -57,7 +57,8 @@ namespace MammothAPI.Controllers
 		/// </summary>
 		/// <param name="request">The request<see cref="AuthenticateRequest"/></param>
 		/// <returns>The <see cref="Task{AuthenticateStoreResponse}"/></returns>
-		[HttpPost("user")]
+		[HttpPost]
+		[ActionName("store")]
 		public async Task<AuthenticateStoreResponse> AuthenticateStoreAsync(AuthenticateRequest request)
 		{
 			var store = await this.authenticateService.AuthenticateStore(request);
@@ -79,7 +80,8 @@ namespace MammothAPI.Controllers
 		/// </summary>
 		/// <param name="request">The request<see cref="AuthenticateRequest"/></param>
 		/// <returns>The <see cref="Task{AuthenticateUserResponse}"/></returns>
-		[HttpPost("user")]
+		[HttpPost]
+		[ActionName("user")]
 		public async Task<AuthenticateUserResponse> AuthenticateUserAsync(AuthenticateRequest request)
 		{
 			var user = await this.authenticateService.AuthenticateUser(request);

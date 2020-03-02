@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MammothAPI.Common;
 using MammothAPI.Data;
+using MammothAPI.Filters;
 using MammothAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -64,11 +65,21 @@ namespace MammothAPI
 			services.AddScoped<IMappers, Mappers>();
 			services.AddScoped<IReportsService, ReportsService>();
 			services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
+
+			services.AddMvc();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.UseCors(builder =>
+			{
+				builder.WithOrigins("http://localhost:4200")
+				.AllowAnyMethod()
+				.AllowAnyHeader();
+			});
+			//app.UseCorsMiddleware();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -77,9 +88,15 @@ namespace MammothAPI
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
-
+			
+			//// global cors policy
+			//app.UseCors(x => x
+			//	.AllowAnyOrigin()
+			//	.AllowAnyMethod()
+			//	.AllowAnyHeader());
+			app.UseAuthentication();
 			app.UseAuthorization();
-
+			app.UseMiddleware<ErrorHandlingMiddleware>();
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
