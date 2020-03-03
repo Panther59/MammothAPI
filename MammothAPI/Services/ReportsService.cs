@@ -45,16 +45,16 @@ namespace MammothAPI.Services
 		{
 			var result = await this.mammothDBContext.Stores
 				.Include(x => x.Sales)
-				.Include(x => x.ProductSalesStore)
+				.Include(x => x.ProductSales)
 				.Select(x => new
 				{
 					Store = x,
 					IsDataSumitted = x.Sales != null &&
 					x.Sales.Any(x => x.BusinessDate == businessDate) &&
-					x.ProductSalesStore != null &&
-					x.ProductSalesStore.Any(x => x.BusinessDate == businessDate),
+					x.ProductSales != null &&
+					x.ProductSales.Any(x => x.BusinessDate == businessDate),
 					StoreSale = x.Sales != null ? x.Sales.FirstOrDefault(x => x.BusinessDate == businessDate) : null,
-					ProductsSale = x.ProductSalesStore != null ? x.ProductSalesStore.Where(x => x.BusinessDate == businessDate) : null,
+					ProductsSale = x.ProductSales != null ? x.ProductSales.Where(x => x.BusinessDate == businessDate) : null,
 				}).ToListAsync();
 
 			return result.Select(x => new StoreSaleReport

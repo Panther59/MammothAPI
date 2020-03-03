@@ -21,7 +21,7 @@ namespace MammothAPI.Controllers
 	/// Defines the <see cref="SalesController" />
 	/// </summary>
 	[ApiController]
-	[Route("[controller]")]
+	[Route("api/[controller]")]
 	public class SalesController : ControllerBase
 	{
 		private readonly ISalesService salesService;

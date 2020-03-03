@@ -24,6 +24,15 @@ namespace MammothAPI.Data
         public virtual DbSet<Stores> Stores { get; set; }
         public virtual DbSet<Users> Users { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MammothDB;Integrated Security=true;persist security info=true;");
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Logins>(entity =>
@@ -72,19 +81,19 @@ namespace MammothAPI.Data
                 entity.Property(e => e.StoreId).HasColumnName("StoreID");
 
                 entity.HasOne(d => d.ModifiedByNavigation)
-                    .WithMany(p => p.ProductSalesModifiedByNavigation)
+                    .WithMany(p => p.ProductSales)
                     .HasForeignKey(d => d.ModifiedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ProductSales_Stores_Modified");
+                    .HasConstraintName("FK_ProductSales_Logins");
 
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.ProductSales)
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ProductSales_Logins");
+                    .HasConstraintName("FK_ProductSales_Products");
 
                 entity.HasOne(d => d.Store)
-                    .WithMany(p => p.ProductSalesStore)
+                    .WithMany(p => p.ProductSales)
                     .HasForeignKey(d => d.StoreId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProductSales_Stores");

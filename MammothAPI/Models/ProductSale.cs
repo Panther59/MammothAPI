@@ -16,7 +16,7 @@ namespace MammothAPI.Models
 		/// <summary>
 		/// Gets or sets the ProductID
 		/// </summary>
-		public int? ProductID { get; set; }
+		public Product Product { get; set; }
 
 		/// <summary>
 		/// Gets or sets the SaleCount

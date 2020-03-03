@@ -7,8 +7,7 @@ namespace MammothAPI.Data
     {
         public Stores()
         {
-            ProductSalesModifiedByNavigation = new HashSet<ProductSales>();
-            ProductSalesStore = new HashSet<ProductSales>();
+            ProductSales = new HashSet<ProductSales>();
             Sales = new HashSet<Sales>();
         }
 
@@ -23,8 +22,7 @@ namespace MammothAPI.Data
         public virtual StoreGroups Group { get; set; }
         public virtual Logins Login { get; set; }
         public virtual Users ModifiedByNavigation { get; set; }
-        public virtual ICollection<ProductSales> ProductSalesModifiedByNavigation { get; set; }
-        public virtual ICollection<ProductSales> ProductSalesStore { get; set; }
+        public virtual ICollection<ProductSales> ProductSales { get; set; }
         public virtual ICollection<Sales> Sales { get; set; }
     }
 }

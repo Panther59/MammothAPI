@@ -54,11 +54,21 @@ namespace MammothAPI.Services
 		/// <inheritdoc />
 		public async Task<List<ProductSale>> GetProductSalesAsync(int storeId, DateTime date)
 		{
-			var sales = await this.mammothDBContext.ProductSales
-				.Where(x => x.StoreId == storeId && x.BusinessDate == date)
-				.ToListAsync();
+			//var todayProductSale = this.mammothDBContext.ProductSales.Where(x => x.StoreId == storeId && x.BusinessDate == date)
 
-			return sales.Select(x => this.mappers.MapSale(x)).ToList();
+			var sales = await (from s in this.mammothDBContext.Products
+						from p in this.mammothDBContext.ProductSales.Where(y => y.StoreId == storeId && y.BusinessDate == date).DefaultIfEmpty()
+						where s.Id == p.ProductId
+						select new
+						{
+							Product = s,
+							SaleCount = p != null ? (int?)p.SaleCount : null
+						})
+						.OrderBy(x => x.Product.Id)
+						.ToListAsync();
+
+
+			return sales.Select(x => new ProductSale { Product = this.mappers.MapProduct(x.Product), SaleCount = x.SaleCount }).ToList();
 		}
 
 		/// <inheritdoc />
@@ -79,7 +89,7 @@ namespace MammothAPI.Services
 				BusinessDate = date,
 				ModifiedBy = this.session.LoginID.Value,
 				ModifiedOn = DateTime.Now,
-				ProductId = sale.ProductID.Value,
+				ProductId = sale.Product.ID.Value,
 				SaleCount = sale.SaleCount.Value,
 				StoreId = storeId,
 			});
@@ -121,6 +131,8 @@ namespace MammothAPI.Services
 			else
 			{
 				var saleData = this.mappers.MapSale(sale);
+				saleData.StoreId = storeId;
+				saleData.BusinessDate = date;
 				saleData.LastModifiedBy = this.session.LoginID.Value;
 				saleData.LastModifiedOn = DateTime.Now;
 

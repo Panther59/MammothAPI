@@ -19,7 +19,7 @@ namespace MammothAPI.Models
 		/// <summary>
 		/// Gets or sets the ID
 		/// </summary>
-		public int ID { get; set; }
+		public int? ID { get; set; }
 
 		/// <summary>
 		/// Gets or sets the IsActive

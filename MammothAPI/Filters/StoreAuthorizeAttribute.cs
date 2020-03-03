@@ -1,4 +1,4 @@
-﻿// <copyright file="UserAuthorizeAttribute.cs" company="Ayvan">
+﻿// <copyright file="StoreAuthorizeAttribute.cs" company="Ayvan">
 // Copyright (c) 2020 All Rights Reserved
 // </copyright>
 // <author>UTKARSHLAPTOP\Utkarsh</author>
@@ -12,9 +12,9 @@ namespace MammothAPI.Filters
 	using Microsoft.AspNetCore.Mvc.Filters;
 
 	/// <summary>
-	/// Defines the <see cref="UserAuthorizeAttribute" />
+	/// Defines the <see cref="StoreAuthorizeAttribute" />
 	/// </summary>
-	public class UserAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
+	public class StoreAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
 	{
 		/// <summary>
 		/// The OnAuthorization

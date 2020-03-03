@@ -48,6 +48,11 @@ namespace MammothAPI.Services
 
 		public StoreSale MapSale(Sales sale)
 		{
+			if (sale == null)
+			{
+				return null;
+			}
+
 			return new StoreSale
 			{
 				CashDeposite = sale.CashDeposite,
@@ -86,7 +91,7 @@ namespace MammothAPI.Services
 		{
 			return new ProductSale
 			{
-				ProductID = x.ProductId,
+				Product = this.MapProduct(x.Product),
 				SaleCount = x.SaleCount
 			};
 		}
