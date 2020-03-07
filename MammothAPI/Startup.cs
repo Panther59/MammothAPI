@@ -58,10 +58,10 @@ namespace MammothAPI
 			var connection = Configuration.GetConnectionString("MammothDBConnectionString");
 			services.AddDbContext<MammothDBContext>(o => o.UseSqlServer(connection));
 			services.AddScoped<ISession, Session>();
-			services.AddScoped<IUsersService, UserService>();
 			services.AddScoped<IAuthenticateService, AuthenticateService>();
 			services.AddScoped<IProductsService, ProductsService>();
 			services.AddScoped<ISalesService, SalesService>();
+			services.AddScoped<IReportsService, ReportsService>();
 			services.AddScoped<IMappers, Mappers>();
 			services.AddScoped<IReportsService, ReportsService>();
 			services.AddSingleton<IEncryptionHelper, EncryptionHelper>();

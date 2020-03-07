@@ -56,14 +56,15 @@ namespace MammothAPI.Services
 		{
 			//var todayProductSale = this.mammothDBContext.ProductSales.Where(x => x.StoreId == storeId && x.BusinessDate == date)
 
-			var sales = await (from s in this.mammothDBContext.Products
-						from p in this.mammothDBContext.ProductSales.Where(y => y.StoreId == storeId && y.BusinessDate == date).DefaultIfEmpty()
-						where s.Id == p.ProductId
-						select new
-						{
-							Product = s,
-							SaleCount = p != null ? (int?)p.SaleCount : null
-						})
+			var sales = await (from ps in this.mammothDBContext.Products
+							   join p in this.mammothDBContext.ProductSales.Where(y => y.StoreId == storeId && y.BusinessDate == date)
+							   on ps.Id equals p.ProductId into prodSale
+							   from s in prodSale.DefaultIfEmpty()
+							   select new
+							   {
+								   Product = ps,
+								   SaleCount = s != null ? (int?)s.SaleCount : null
+							   })
 						.OrderBy(x => x.Product.Id)
 						.ToListAsync();
 

@@ -12,9 +12,7 @@ namespace MammothAPI.Data
             Products = new HashSet<Products>();
             Sales = new HashSet<Sales>();
             StoreGroups = new HashSet<StoreGroups>();
-            Stores = new HashSet<Stores>();
             UsersLastModifiedByNavigation = new HashSet<Users>();
-            UsersLogin = new HashSet<Users>();
         }
 
         public int Id { get; set; }
@@ -22,13 +20,13 @@ namespace MammothAPI.Data
         public DateTime? LastLogin { get; set; }
         public bool IsActive { get; set; }
 
+        public virtual Stores Stores { get; set; }
+        public virtual Users UsersLogin { get; set; }
         public virtual ICollection<ProductGroups> ProductGroups { get; set; }
         public virtual ICollection<ProductSales> ProductSales { get; set; }
         public virtual ICollection<Products> Products { get; set; }
         public virtual ICollection<Sales> Sales { get; set; }
         public virtual ICollection<StoreGroups> StoreGroups { get; set; }
-        public virtual ICollection<Stores> Stores { get; set; }
         public virtual ICollection<Users> UsersLastModifiedByNavigation { get; set; }
-        public virtual ICollection<Users> UsersLogin { get; set; }
     }
 }

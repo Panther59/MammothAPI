@@ -14,9 +14,9 @@ namespace MammothAPI.Models
 	public class StoreSaleReport
 	{
 		/// <summary>
-		/// Gets or sets a value indicating whether IsDataSumitted
+		/// Gets or sets a value indicating whether IsDataSubmitted
 		/// </summary>
-		public bool IsDataSumitted { get; set; }
+		public bool IsDataSubmitted { get; set; }
 
 		/// <summary>
 		/// Gets or sets the ProductsSale

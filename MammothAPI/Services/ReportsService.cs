@@ -9,9 +9,12 @@ namespace MammothAPI.Services
 	using MammothAPI.Data;
 	using MammothAPI.Models;
 	using Microsoft.EntityFrameworkCore;
-	using System;
+    using Microsoft.Extensions.Configuration;
+    using System;
 	using System.Collections.Generic;
-	using System.Linq;
+	using System.Data;
+    using System.Data.SqlClient;
+    using System.Linq;
 	using System.Threading.Tasks;
 
 	/// <summary>
@@ -19,6 +22,8 @@ namespace MammothAPI.Services
 	/// </summary>
 	public class ReportsService : IReportsService
 	{
+		private readonly IConfiguration configuration;
+
 		/// <summary>
 		/// Defines the mammothDBContext
 		/// </summary>
@@ -34,8 +39,12 @@ namespace MammothAPI.Services
 		/// </summary>
 		/// <param name="mammothDBContext">The mammothDBContext<see cref="MammothDBContext"/></param>
 		/// <param name="mappers">The mappers<see cref="IMappers"/></param>
-		public ReportsService(MammothDBContext mammothDBContext, IMappers mappers)
+		public ReportsService(
+			IConfiguration configuration,
+			MammothDBContext mammothDBContext,
+			IMappers mappers)
 		{
+			this.configuration = configuration;
 			this.mammothDBContext = mammothDBContext;
 			this.mappers = mappers;
 		}
@@ -43,10 +52,65 @@ namespace MammothAPI.Services
 		/// <inheritdoc />
 		public async Task<List<StoreSaleReport>> GetDataSubmitStatusAsync(DateTime businessDate)
 		{
+			var result = await this.GetSalesData(businessDate);
+
+			return result.Select(x => new StoreSaleReport
+			{
+				Store = this.mappers.MapStore(x.Store),
+				IsDataSubmitted = x.IsDataSumitted,
+				//Sale = this.mappers.MapSale(x.StoreSale),
+				//ProductsSale = x.ProductsSale.Select(y => this.mappers.MapSale(y)),
+			}).ToList();
+		}
+
+		/// <summary>
+		/// The GetTodaysSalesReportAsync
+		/// </summary>
+		/// <returns>The <see cref="List{DataTable}"/></returns>
+		public List<DataTable> GetTodaysSalesReportAsync(DateTime businessDate)
+		{
+			var param = new SqlParameter("@date", SqlDbType.Date);
+			param.Value = businessDate.Date;
+			var dataSet = this.ExecuteDataTableSqlDA(CommandType.StoredProcedure, "GetSalesReportData", new SqlParameter[1] { param });
+			if (dataSet != null && dataSet.Tables != null)
+			{
+				List<DataTable> output = new List<DataTable>();
+				foreach (DataTable table in dataSet.Tables)
+				{
+					output.Add(table);
+				}
+
+				return output;	
+			}
+
+			return null;
+		}
+
+		private DataSet ExecuteDataTableSqlDA(CommandType cmdType, string cmdText, SqlParameter[] cmdParms)
+		{
+			using var sqlConnection = new SqlConnection(this.configuration.GetConnectionString("MammothDBConnectionString"));
+			sqlConnection.Open();
+			using var sqlCommand = new SqlCommand(cmdText, sqlConnection);
+			sqlCommand.CommandType = cmdType;
+			sqlCommand.Parameters.AddRange(cmdParms);
+			var ds = new DataSet();
+			using var da = new SqlDataAdapter(sqlCommand);
+			da.Fill(ds);
+			sqlConnection.Close();
+			return ds;
+		}
+
+		/// <summary>
+		/// The GetSalesData
+		/// </summary>
+		/// <param name="businessDate">The businessDate<see cref="DateTime"/></param>
+		/// <returns>The <see cref="Task{List{SalesDetails}}"/></returns>
+		private async Task<List<SalesDetails>> GetSalesData(DateTime businessDate)
+		{
 			var result = await this.mammothDBContext.Stores
 				.Include(x => x.Sales)
 				.Include(x => x.ProductSales)
-				.Select(x => new
+				.Select(x => new SalesDetails
 				{
 					Store = x,
 					IsDataSumitted = x.Sales != null &&
@@ -57,13 +121,7 @@ namespace MammothAPI.Services
 					ProductsSale = x.ProductSales != null ? x.ProductSales.Where(x => x.BusinessDate == businessDate) : null,
 				}).ToListAsync();
 
-			return result.Select(x => new StoreSaleReport
-			{
-				Store = this.mappers.MapStore(x.Store),
-				IsDataSumitted = x.IsDataSumitted,
-				Sale = this.mappers.MapSale(x.StoreSale),
-				ProductsSale = x.ProductsSale.Select(y => this.mappers.MapSale(y)),
-			}).ToList();
+			return result;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="AuthenticateUserResponse.cs" company="Ayvan">
+﻿// <copyright file="AuthenticateResponse.cs" company="Ayvan">
 // Copyright (c) 2020 All Rights Reserved
 // </copyright>
 // <author>UTKARSHLAPTOP\Utkarsh</author>
@@ -7,14 +7,24 @@
 namespace MammothAPI.Models
 {
 	/// <summary>
-	/// Defines the <see cref="AuthenticateUserResponse" />
+	/// Defines the <see cref="AuthenticateResponse" />
 	/// </summary>
-	public class AuthenticateUserResponse
+	public class AuthenticateResponse
 	{
+		/// <summary>
+		/// Gets or sets the Store
+		/// </summary>
+		public Store Store { get; set; }
+
 		/// <summary>
 		/// Gets or sets the Token
 		/// </summary>
 		public string Token { get; set; }
+
+		/// <summary>
+		/// Gets or sets the Type
+		/// </summary>
+		public string Type { get; set; }
 
 		/// <summary>
 		/// Gets or sets the User

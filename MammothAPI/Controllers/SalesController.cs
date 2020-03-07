@@ -6,15 +6,14 @@
 
 namespace MammothAPI.Controllers
 {
-    using MammothAPI.Common;
-    using MammothAPI.Filters;
-    using MammothAPI.Models;
+	using MammothAPI.Common;
+	using MammothAPI.Filters;
+	using MammothAPI.Models;
 	using MammothAPI.Services;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.Extensions.Logging;
-    using System;
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
 	using System.Threading.Tasks;
 
 	/// <summary>
@@ -24,18 +23,26 @@ namespace MammothAPI.Controllers
 	[Route("api/[controller]")]
 	public class SalesController : ControllerBase
 	{
-		private readonly ISalesService salesService;
-		private readonly ISession session;
-
 		/// <summary>
 		/// Defines the logger
 		/// </summary>
 		private readonly ILogger<SalesController> logger;
 
 		/// <summary>
+		/// Defines the salesService
+		/// </summary>
+		private readonly ISalesService salesService;
+
+		/// <summary>
+		/// Defines the session
+		/// </summary>
+		private readonly ISession session;
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="SalesController"/> class.
 		/// </summary>
-		/// <param name="productsService">The productsService<see cref="IProductsService"/></param>
+		/// <param name="salesService">The salesService<see cref="ISalesService"/></param>
+		/// <param name="session">The session<see cref="ISession"/></param>
 		/// <param name="logger">The logger<see cref="ILogger{SalesController}"/></param>
 		public SalesController(
 			ISalesService salesService,
@@ -59,16 +66,11 @@ namespace MammothAPI.Controllers
 			var storeId = this.session.StoreID.Value;
 			return await this.salesService.GetProductSalesAsync(storeId, businessDate);
 		}
-		
-		[HttpPost("products")]
-		[StoreAuthorize]
-		public async Task SaveProductSalesAsync(List<ProductSale> sales)
-		{
-			var businessDate = DateTime.Now;
-			var storeId = this.session.StoreID.Value;
-			await this.salesService.SaveProductSalesAsync(storeId, businessDate, sales);
-		}
 
+		/// <summary>
+		/// The GetStoreSaleAsync
+		/// </summary>
+		/// <returns>The <see cref="Task{StoreSale}"/></returns>
 		[HttpGet("store")]
 		[StoreAuthorize]
 		public async Task<StoreSale> GetStoreSaleAsync()
@@ -78,6 +80,25 @@ namespace MammothAPI.Controllers
 			return await this.salesService.GetStoreSalesAsync(storeId, businessDate);
 		}
 
+		/// <summary>
+		/// The SaveProductSalesAsync
+		/// </summary>
+		/// <param name="sales">The sales<see cref="List{ProductSale}"/></param>
+		/// <returns>The <see cref="Task"/></returns>
+		[HttpPost("products")]
+		[StoreAuthorize]
+		public async Task SaveProductSalesAsync(List<ProductSale> sales)
+		{
+			var businessDate = DateTime.Now;
+			var storeId = this.session.StoreID.Value;
+			await this.salesService.SaveProductSalesAsync(storeId, businessDate, sales);
+		}
+
+		/// <summary>
+		/// The SaveStoreSaleAsync
+		/// </summary>
+		/// <param name="sale">The sale<see cref="StoreSale"/></param>
+		/// <returns>The <see cref="Task"/></returns>
 		[HttpPost("store")]
 		[StoreAuthorize]
 		public async Task SaveStoreSaleAsync(StoreSale sale)

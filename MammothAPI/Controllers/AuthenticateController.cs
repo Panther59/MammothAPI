@@ -6,8 +6,10 @@
 
 namespace MammothAPI.Controllers
 {
+	using MammothAPI.Common;
 	using MammothAPI.Models;
 	using MammothAPI.Services;
+	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.Extensions.Configuration;
 	using Microsoft.Extensions.Logging;
@@ -25,8 +27,6 @@ namespace MammothAPI.Controllers
 	[ApiController]
 	public class AuthenticateController : ControllerBase
 	{
-		private readonly ILogger<AuthenticateController> logger;
-
 		/// <summary>
 		/// Defines the authenticateService
 		/// </summary>
@@ -38,15 +38,29 @@ namespace MammothAPI.Controllers
 		private readonly IConfiguration configuration;
 
 		/// <summary>
+		/// Defines the logger
+		/// </summary>
+		private readonly ILogger<AuthenticateController> logger;
+
+		/// <summary>
+		/// Defines the session
+		/// </summary>
+		private readonly ISession session;
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="AuthenticateController"/> class.
 		/// </summary>
+		/// <param name="session">The session<see cref="ISession"/></param>
 		/// <param name="configuration">The configuration<see cref="IConfiguration"/></param>
+		/// <param name="logger">The logger<see cref="ILogger{AuthenticateController}"/></param>
 		/// <param name="authenticateService">The authenticateService<see cref="IAuthenticateService"/></param>
 		public AuthenticateController(
+			ISession session,
 			IConfiguration configuration,
 			ILogger<AuthenticateController> logger,
 			IAuthenticateService authenticateService)
 		{
+			this.session = session;
 			this.configuration = configuration;
 			this.logger = logger;
 			this.authenticateService = authenticateService;
@@ -56,10 +70,10 @@ namespace MammothAPI.Controllers
 		/// The AuthenticateStoreAsync
 		/// </summary>
 		/// <param name="request">The request<see cref="AuthenticateRequest"/></param>
-		/// <returns>The <see cref="Task{AuthenticateStoreResponse}"/></returns>
+		/// <returns>The <see cref="Task{AuthenticateResponse}"/></returns>
 		[HttpPost]
 		[ActionName("store")]
-		public async Task<AuthenticateStoreResponse> AuthenticateStoreAsync(AuthenticateRequest request)
+		public async Task<AuthenticateResponse> AuthenticateStoreAsync(AuthenticateRequest request)
 		{
 			var store = await this.authenticateService.AuthenticateStore(request);
 
@@ -68,10 +82,11 @@ namespace MammothAPI.Controllers
 				throw new UnauthorizedAccessException("Login credentials are invalid");
 			}
 
-			return new AuthenticateStoreResponse
+			return new AuthenticateResponse
 			{
 				Token = this.GenerateJSONWebToken(store),
-				Store = store
+				Store = store,
+				Type = "Store"
 			};
 		}
 
@@ -82,7 +97,7 @@ namespace MammothAPI.Controllers
 		/// <returns>The <see cref="Task{AuthenticateUserResponse}"/></returns>
 		[HttpPost]
 		[ActionName("user")]
-		public async Task<AuthenticateUserResponse> AuthenticateUserAsync(AuthenticateRequest request)
+		public async Task<AuthenticateResponse> AuthenticateUserAsync(AuthenticateRequest request)
 		{
 			var user = await this.authenticateService.AuthenticateUser(request);
 
@@ -91,11 +106,35 @@ namespace MammothAPI.Controllers
 				throw new UnauthorizedAccessException("Login credentials are invalid");
 			}
 
-			return new AuthenticateUserResponse
+			return new AuthenticateResponse
 			{
 				Token = this.GenerateJSONWebToken(user),
-				User = user
+				User = user,
+				Type = "User"
 			};
+		}
+
+		/// <summary>
+		/// The CurrentLoginAsync
+		/// </summary>
+		/// <returns>The <see cref="Task{AuthenticateResponse}"/></returns>
+		[HttpGet]
+		[ActionName("current")]
+		[Authorize]
+		public async Task<AuthenticateResponse> CurrentLoginAsync()
+		{
+			var response = await this.authenticateService.GetCurrentLogin(this.session.LoginID.Value);
+
+			if (response == null)
+			{
+				throw new UnauthorizedAccessException("Invalid user");
+			}
+
+			//response.Token = this.
+			response.Type = response.User != null ? "User" : "Store";
+			response.Token = response.User != null ? this.GenerateJSONWebToken(response.User) : this.GenerateJSONWebToken(response.Store);
+
+			return response;
 		}
 
 		/// <summary>

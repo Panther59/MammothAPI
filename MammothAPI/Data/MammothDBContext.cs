@@ -179,6 +179,10 @@ namespace MammothAPI.Data
 
             modelBuilder.Entity<Stores>(entity =>
             {
+                entity.HasIndex(e => e.LoginId)
+                    .HasName("IX_Stores_Logins")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Code)
@@ -204,8 +208,8 @@ namespace MammothAPI.Data
                     .HasConstraintName("FK_Stores_Stores");
 
                 entity.HasOne(d => d.Login)
-                    .WithMany(p => p.Stores)
-                    .HasForeignKey(d => d.LoginId)
+                    .WithOne(p => p.Stores)
+                    .HasForeignKey<Stores>(d => d.LoginId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Stores_Logins");
 
@@ -218,6 +222,10 @@ namespace MammothAPI.Data
 
             modelBuilder.Entity<Users>(entity =>
             {
+                entity.HasIndex(e => e.LoginId)
+                    .HasName("IX_Users_Logins")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Email)
@@ -251,8 +259,8 @@ namespace MammothAPI.Data
                     .HasConstraintName("FK_Users_LastModified");
 
                 entity.HasOne(d => d.Login)
-                    .WithMany(p => p.UsersLogin)
-                    .HasForeignKey(d => d.LoginId)
+                    .WithOne(p => p.UsersLogin)
+                    .HasForeignKey<Users>(d => d.LoginId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Users_Logins");
             });

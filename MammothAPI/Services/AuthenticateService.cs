@@ -105,5 +105,20 @@ namespace MammothAPI.Services
 				throw new UnauthorizedAccessException("Login name doesn't exists");
 			}
 		}
+
+		public async Task<AuthenticateResponse> GetCurrentLogin(int loginId)
+		{
+			var login = await this.mammothDBContext.Logins
+				.Include(x => x.UsersLogin)
+				.Include(x => x.Stores)
+				.Where(x => x.Id == loginId)
+				.FirstOrDefaultAsync();
+
+			return new AuthenticateResponse
+			{
+				Store = this.mappers.MapStore(login.Stores),
+				User = this.mappers.MapUser(login.UsersLogin),
+			};
+		}
 	}
 }

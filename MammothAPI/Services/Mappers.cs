@@ -11,6 +11,11 @@ namespace MammothAPI.Services
 	{
 		public User MapUser(Users user)
 		{
+			if (user == null)
+			{
+				return null;
+			}
+
 			return new User
 			{
 				ID = user.Id,
@@ -37,6 +42,11 @@ namespace MammothAPI.Services
 
 		public Store MapStore(Stores store)
 		{
+			if (store == null)
+			{
+				return null;
+			}
+
 			return new Store
 			{
 				ID = store.Id,

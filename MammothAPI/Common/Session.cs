@@ -57,7 +57,7 @@ namespace MammothAPI.Common
 			{
 				if (this.httpContextAccessor.HttpContext.User.Claims.Any(x => x.Type == JwtRegisteredClaimNames.Typ && x.Value == "Store"))
 				{
-					var idText = this.httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+					var idText = this.httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "StoreID")?.Value;
 					if (int.TryParse(idText, out int id))
 					{
 						return id;
@@ -81,7 +81,7 @@ namespace MammothAPI.Common
 			{
 				if (this.httpContextAccessor.HttpContext.User.Claims.Any(x => x.Type == JwtRegisteredClaimNames.Typ && x.Value == "User"))
 				{
-					var idText = this.httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+					var idText = this.httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserID")?.Value;
 					if (int.TryParse(idText, out int id))
 					{
 						return id;
