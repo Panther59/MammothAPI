@@ -9,12 +9,12 @@ namespace MammothAPI.Services
 	using MammothAPI.Data;
 	using MammothAPI.Models;
 	using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
-    using System;
+	using Microsoft.Extensions.Configuration;
+	using System;
 	using System.Collections.Generic;
 	using System.Data;
-    using System.Data.SqlClient;
-    using System.Linq;
+	using System.Data.SqlClient;
+	using System.Linq;
 	using System.Threading.Tasks;
 
 	/// <summary>
@@ -22,6 +22,9 @@ namespace MammothAPI.Services
 	/// </summary>
 	public class ReportsService : IReportsService
 	{
+		/// <summary>
+		/// Defines the configuration
+		/// </summary>
 		private readonly IConfiguration configuration;
 
 		/// <summary>
@@ -37,6 +40,7 @@ namespace MammothAPI.Services
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReportsService"/> class.
 		/// </summary>
+		/// <param name="configuration">The configuration<see cref="IConfiguration"/></param>
 		/// <param name="mammothDBContext">The mammothDBContext<see cref="MammothDBContext"/></param>
 		/// <param name="mappers">The mappers<see cref="IMappers"/></param>
 		public ReportsService(
@@ -47,6 +51,26 @@ namespace MammothAPI.Services
 			this.configuration = configuration;
 			this.mammothDBContext = mammothDBContext;
 			this.mappers = mappers;
+		}
+
+		/// <summary>
+		/// The DeleteOldDataAsync
+		/// </summary>
+		/// <returns>The <see cref="Task"/></returns>
+		public async Task DeleteOldDataAsync()
+		{
+			DateTime date = DateTime.Now.AddDays(-7);
+			var productSales = await this.mammothDBContext.ProductSales
+				.Where(x => x.BusinessDate < date)
+				.ToListAsync();
+
+			this.mammothDBContext.ProductSales.RemoveRange(productSales);
+			var storeSales = await this.mammothDBContext.Sales
+				.Where(x => x.BusinessDate < date)
+				.ToListAsync();
+
+			this.mammothDBContext.Sales.RemoveRange(storeSales);
+			await this.mammothDBContext.SaveChangesAsync();
 		}
 
 		/// <inheritdoc />
@@ -66,6 +90,7 @@ namespace MammothAPI.Services
 		/// <summary>
 		/// The GetTodaysSalesReportAsync
 		/// </summary>
+		/// <param name="businessDate">The businessDate<see cref="DateTime"/></param>
 		/// <returns>The <see cref="List{DataTable}"/></returns>
 		public List<DataTable> GetTodaysSalesReportAsync(DateTime businessDate)
 		{
@@ -80,12 +105,19 @@ namespace MammothAPI.Services
 					output.Add(table);
 				}
 
-				return output;	
+				return output;
 			}
 
 			return null;
 		}
 
+		/// <summary>
+		/// The ExecuteDataTableSqlDA
+		/// </summary>
+		/// <param name="cmdType">The cmdType<see cref="CommandType"/></param>
+		/// <param name="cmdText">The cmdText<see cref="string"/></param>
+		/// <param name="cmdParms">The cmdParms<see cref="SqlParameter[]"/></param>
+		/// <returns>The <see cref="DataSet"/></returns>
 		private DataSet ExecuteDataTableSqlDA(CommandType cmdType, string cmdText, SqlParameter[] cmdParms)
 		{
 			using var sqlConnection = new SqlConnection(this.configuration.GetConnectionString("MammothDBConnectionString"));
@@ -119,7 +151,9 @@ namespace MammothAPI.Services
 					x.ProductSales.Any(x => x.BusinessDate == businessDate),
 					StoreSale = x.Sales != null ? x.Sales.FirstOrDefault(x => x.BusinessDate == businessDate) : null,
 					ProductsSale = x.ProductSales != null ? x.ProductSales.Where(x => x.BusinessDate == businessDate) : null,
-				}).ToListAsync();
+				})
+				.OrderBy(x => x.Store.Code)
+				.ToListAsync();
 
 			return result;
 		}

@@ -7,7 +7,8 @@
 namespace MammothAPI.Controllers
 {
 	using MammothAPI.Common;
-	using MammothAPI.Models;
+    using MammothAPI.Filters;
+    using MammothAPI.Models;
 	using MammothAPI.Services;
 	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;
@@ -135,6 +136,15 @@ namespace MammothAPI.Controllers
 			response.Token = response.User != null ? this.GenerateJSONWebToken(response.User) : this.GenerateJSONWebToken(response.Store);
 
 			return response;
+		}
+
+		[HttpPost]
+		[ActionName("changePassword")]
+		[LoginAuthorize]
+		public async Task ChangePassword(ChangePassword input)
+		{
+			input.LoginID = this.session.LoginID;
+			await this.authenticateService.ChangePassword(input);
 		}
 
 		/// <summary>

@@ -34,7 +34,7 @@ namespace MammothAPI.Common
 		/// <inheritdoc />
 		public string Decrypt(string input)
 		{
-			string password = this.configuration.GetValue<string>("AppSettings.EncryptionPassword");
+			string password = this.configuration.GetValue<string>("AppSettings:EncryptionPassword");
 			return this.Decrypt(input, password);
 		}
 

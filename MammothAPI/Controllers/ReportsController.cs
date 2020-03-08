@@ -11,11 +11,11 @@ namespace MammothAPI.Controllers
 	using MammothAPI.Services;
 	using Microsoft.AspNetCore.Hosting;
 	using Microsoft.AspNetCore.Mvc;
-    using OfficeOpenXml;
-    using System;
+	using OfficeOpenXml;
+	using System;
 	using System.Collections.Generic;
-    using System.IO;
-    using System.Threading.Tasks;
+	using System.IO;
+	using System.Threading.Tasks;
 
 	/// <summary>
 	/// Defines the <see cref="ReportsController" />
@@ -24,7 +24,11 @@ namespace MammothAPI.Controllers
 	[Route("api/[controller]")]
 	public class ReportsController : ControllerBase
 	{
+		/// <summary>
+		/// Defines the hostingEnvironment
+		/// </summary>
 		private readonly IHostingEnvironment hostingEnvironment;
+
 		/// <summary>
 		/// Defines the reportsService
 		/// </summary>
@@ -33,6 +37,7 @@ namespace MammothAPI.Controllers
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReportsController"/> class.
 		/// </summary>
+		/// <param name="hostingEnvironment">The hostingEnvironment<see cref="IHostingEnvironment"/></param>
 		/// <param name="reportsService">The reportsService<see cref="IReportsService"/></param>
 		public ReportsController(
 				IHostingEnvironment hostingEnvironment,
@@ -43,18 +48,11 @@ namespace MammothAPI.Controllers
 		}
 
 		/// <summary>
-		/// The GetStoreSaleAsync
+		/// The Export
 		/// </summary>
-		/// <returns>The <see cref="Task{List{StoreSaleReport}}"/></returns>
-		[HttpGet("summary/{date}")]
-		[UserAuthorize]
-		public async Task<List<StoreSaleReport>> GetStoreSaleAsync(DateTime date)
-		{
-			return await this.reportsService.GetDataSubmitStatusAsync(date);
-		}
-
+		/// <param name="date">The date<see cref="DateTime"/></param>
+		/// <returns>The <see cref="FileResult"/></returns>
 		[HttpGet("report/{date}")]
-		[HttpHead("report/{date}")]
 		[UserAuthorize]
 		public FileResult Export(DateTime date)
 		{
@@ -89,8 +87,46 @@ namespace MammothAPI.Controllers
 				FileDownloadName = file.FullName
 			};
 
+			this.DeleteFile(file.FullName);
 			return fileContentResult;
+		}
 
+		/// <summary>
+		/// The GetStoreSaleAsync
+		/// </summary>
+		/// <param name="date">The date<see cref="DateTime"/></param>
+		/// <returns>The <see cref="Task{List{StoreSaleReport}}"/></returns>
+		[HttpGet("summary/{date}")]
+		[UserAuthorize]
+		public async Task<List<StoreSaleReport>> GetStoreSaleAsync(DateTime date)
+		{
+			return await this.reportsService.GetDataSubmitStatusAsync(date);
+		}
+
+		/// <summary>
+		/// The RemoveOldData
+		/// </summary>
+		/// <returns>The <see cref="Task"/></returns>
+		[HttpPost("cleanup")]
+		[UserAuthorize]
+		public async Task RemoveOldData()
+		{
+			await this.reportsService.DeleteOldDataAsync();
+		}
+
+		/// <summary>
+		/// The DeleteFile
+		/// </summary>
+		/// <param name="filePath">The filePath<see cref="string"/></param>
+		/// <returns>The <see cref="Task"/></returns>
+		private async Task DeleteFile(string filePath)
+		{
+			await Task.Delay(15 * 1000);
+			FileInfo file = new FileInfo(filePath);
+			if (file.Exists)
+			{
+				file.Delete();
+			}
 		}
 	}
 }

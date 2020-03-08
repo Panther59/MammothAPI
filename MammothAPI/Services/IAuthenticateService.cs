@@ -29,6 +29,13 @@ namespace MammothAPI.Services
 		Task<User> AuthenticateUser(AuthenticateRequest request);
 
 		/// <summary>
+		/// The ChangePassword
+		/// </summary>
+		/// <param name="input">The input<see cref="ChangePassword"/></param>
+		/// <returns>The <see cref="Task"/></returns>
+		Task ChangePassword(ChangePassword input);
+
+		/// <summary>
 		/// The GetCurrentLogin
 		/// </summary>
 		/// <param name="loginId">The loginId<see cref="int"/></param>

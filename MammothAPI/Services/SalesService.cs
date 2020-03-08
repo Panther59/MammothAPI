@@ -76,7 +76,9 @@ namespace MammothAPI.Services
 		public async Task<StoreSale> GetStoreSalesAsync(int storeId, DateTime date)
 		{
 			var sale = await this.mammothDBContext.Sales
+				.Include(x => x.Store)
 				.Where(x => x.BusinessDate == date && x.StoreId == storeId)
+				.OrderBy(x => x.Store.Code)
 				.FirstOrDefaultAsync();
 
 			return this.mappers.MapSale(sale);

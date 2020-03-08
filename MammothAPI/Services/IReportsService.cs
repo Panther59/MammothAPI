@@ -18,6 +18,12 @@ namespace MammothAPI.Services
 	public interface IReportsService
 	{
 		/// <summary>
+		/// The DeleteOldDataAsync
+		/// </summary>
+		/// <returns>The <see cref="Task"/></returns>
+		Task DeleteOldDataAsync();
+
+		/// <summary>
 		/// The GetDataSubmitStatusAsync
 		/// </summary>
 		/// <param name="businessDate">The businessDate<see cref="DateTime"/></param>

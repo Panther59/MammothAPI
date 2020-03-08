@@ -10,8 +10,8 @@ namespace MammothAPI.Services
 	using MammothAPI.Data;
 	using MammothAPI.Models;
 	using Microsoft.EntityFrameworkCore;
-    using System;
-    using System.Linq;
+	using System;
+	using System.Linq;
 	using System.Threading.Tasks;
 
 	/// <summary>
@@ -63,6 +63,11 @@ namespace MammothAPI.Services
 			{
 				if (store.Login.Password == encPassword)
 				{
+					var login = store.Login;
+					login.LastLogin = DateTime.Now;
+					this.mammothDBContext.Entry(login).State = EntityState.Modified;
+					await this.mammothDBContext.SaveChangesAsync();
+
 					return this.mappers.MapStore(store);
 				}
 				else
@@ -91,8 +96,13 @@ namespace MammothAPI.Services
 
 			if (user != null)
 			{
+				var p = this.encryptionHelper.Decrypt(user.Login.Password);
 				if (user.Login.Password == encPassword)
 				{
+					var login = user.Login;
+					login.LastLogin = DateTime.Now;
+					this.mammothDBContext.Entry(login).State = EntityState.Modified;
+					await this.mammothDBContext.SaveChangesAsync();
 					return this.mappers.MapUser(user);
 				}
 				else
@@ -103,6 +113,50 @@ namespace MammothAPI.Services
 			else
 			{
 				throw new UnauthorizedAccessException("Login name doesn't exists");
+			}
+		}
+
+		public async Task ChangePassword(ChangePassword input)
+		{
+			if (input.StoreID.HasValue)
+			{
+				var login = await this.mammothDBContext.Logins
+					.Include(x => x.Stores)
+					.Where(x => x.Stores.Id == input.StoreID.Value)
+					.FirstOrDefaultAsync();
+				if (login == null)
+				{
+					throw new Exception("Your can not find store login");
+				}
+				else
+				{
+					login.Password = this.encryptionHelper.Encrypt(input.NewPassword);
+					this.mammothDBContext.Entry(login).State = EntityState.Modified;
+					await this.mammothDBContext.SaveChangesAsync();
+				}
+			}
+			else
+			{
+				var login = await this.mammothDBContext.Logins
+					.Where(x => x.Id == input.LoginID.Value)
+					.FirstOrDefaultAsync();
+				if (login == null)
+				{
+					throw new UnauthorizedAccessException("Your login is incorrect");
+				}
+				else
+				{
+					if (login.Password == this.encryptionHelper.Encrypt(input.CurrentPassword))
+					{
+						login.Password = this.encryptionHelper.Encrypt(input.NewPassword);
+						this.mammothDBContext.Entry(login).State = EntityState.Modified;
+						await this.mammothDBContext.SaveChangesAsync();
+					}
+					else
+					{
+						throw new Exception("Your current password do not match");
+					}
+				}
 			}
 		}
 
