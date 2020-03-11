@@ -5,3 +5,4 @@
 /.vs/MammothAPI
 /MammothAPI/bin/Debug/netcoreapp3.1
 /MammothAPI/obj
+/MammothAPI/bin/Release/netcoreapp3.1
