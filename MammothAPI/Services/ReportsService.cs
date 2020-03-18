@@ -139,23 +139,39 @@ namespace MammothAPI.Services
 		/// <returns>The <see cref="Task{List{SalesDetails}}"/></returns>
 		private async Task<List<SalesDetails>> GetSalesData(DateTime businessDate)
 		{
-			var result = await this.mammothDBContext.Stores
-				.Include(x => x.Sales)
-				.Include(x => x.ProductSales)
-				.Select(x => new SalesDetails
-				{
-					Store = x,
-					IsDataSumitted = x.Sales != null &&
-					x.Sales.Any(x => x.BusinessDate == businessDate) &&
-					x.ProductSales != null &&
-					x.ProductSales.Any(x => x.BusinessDate == businessDate),
-					StoreSale = x.Sales != null ? x.Sales.FirstOrDefault(x => x.BusinessDate == businessDate) : null,
-					ProductsSale = x.ProductSales != null ? x.ProductSales.Where(x => x.BusinessDate == businessDate) : null,
-				})
-				.OrderBy(x => x.Store.Code)
-				.ToListAsync();
+			var stores = await this.mammothDBContext.Stores.ToListAsync();
+			var storeSales = await this.mammothDBContext.Sales.Where(x => x.BusinessDate == businessDate).ToListAsync();
+			var productSales = await this.mammothDBContext.Sales.Where(x => x.BusinessDate == businessDate).GroupBy(x => x.StoreId).Select(x => new { StoreID = x.Key }).ToListAsync();
 
-			return result;
+			var results = (from s in stores
+						   join ss in storeSales on s.Id equals ss.StoreId into sss
+						   from sj in sss.DefaultIfEmpty()
+						   join ps in productSales on s.Id equals ps.StoreID into pss
+						   from pj in pss.DefaultIfEmpty()
+						   select new SalesDetails
+						   {
+							   Store = s,
+							   IsDataSumitted = (sj != null && pj != null)
+						   })
+						   .OrderBy(x => x.Store.Code)
+						   .ToList();
+
+			//var result = await this.mammothDBContext.Stores
+			//	.Include(x => x.Sales)
+			//	.Include(x => x.ProductSales)
+			//	.Select(x => new SalesDetails
+			//	{
+			//		Store = x,
+			//		IsDataSumitted = x.Sales != null &&
+			//		x.Sales.Any(x => x.BusinessDate == businessDate) &&
+			//		x.ProductSales != null &&
+			//		x.ProductSales.Any(x => x.BusinessDate == businessDate),
+			//		StoreSale = x.Sales != null ? x.Sales.FirstOrDefault(x => x.BusinessDate == businessDate) : null,
+			//		ProductsSale = x.ProductSales != null ? x.ProductSales.Where(x => x.BusinessDate == businessDate) : null,
+			//	})
+			//	.OrderBy(x => x.Store.Code)
+			//	.ToListAsync();
+			return results;
 		}
 	}
 }
