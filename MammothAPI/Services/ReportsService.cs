@@ -18,31 +18,31 @@ namespace MammothAPI.Services
 	using System.Threading.Tasks;
 
 	/// <summary>
-	/// Defines the <see cref="ReportsService" />
+	/// Defines the <see cref="ReportsService" />.
 	/// </summary>
 	public class ReportsService : IReportsService
 	{
 		/// <summary>
-		/// Defines the configuration
+		/// Defines the configuration.
 		/// </summary>
 		private readonly IConfiguration configuration;
 
 		/// <summary>
-		/// Defines the mammothDBContext
+		/// Defines the mammothDBContext.
 		/// </summary>
 		private readonly MammothDBContext mammothDBContext;
 
 		/// <summary>
-		/// Defines the mappers
+		/// Defines the mappers.
 		/// </summary>
 		private readonly IMappers mappers;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReportsService"/> class.
 		/// </summary>
-		/// <param name="configuration">The configuration<see cref="IConfiguration"/></param>
-		/// <param name="mammothDBContext">The mammothDBContext<see cref="MammothDBContext"/></param>
-		/// <param name="mappers">The mappers<see cref="IMappers"/></param>
+		/// <param name="configuration">The configuration<see cref="IConfiguration"/>.</param>
+		/// <param name="mammothDBContext">The mammothDBContext<see cref="MammothDBContext"/>.</param>
+		/// <param name="mappers">The mappers<see cref="IMappers"/>.</param>
 		public ReportsService(
 			IConfiguration configuration,
 			MammothDBContext mammothDBContext,
@@ -54,9 +54,9 @@ namespace MammothAPI.Services
 		}
 
 		/// <summary>
-		/// The DeleteOldDataAsync
+		/// The DeleteOldDataAsync.
 		/// </summary>
-		/// <returns>The <see cref="Task"/></returns>
+		/// <returns>The <see cref="Task"/>.</returns>
 		public async Task DeleteOldDataAsync()
 		{
 			DateTime date = DateTime.Now.AddDays(-7);
@@ -64,6 +64,7 @@ namespace MammothAPI.Services
 				.Where(x => x.BusinessDate < date)
 				.ToListAsync();
 
+			this.mammothDBContext.Database.SetCommandTimeout(300);
 			this.mammothDBContext.ProductSales.RemoveRange(productSales);
 			var storeSales = await this.mammothDBContext.Sales
 				.Where(x => x.BusinessDate < date)
@@ -88,10 +89,10 @@ namespace MammothAPI.Services
 		}
 
 		/// <summary>
-		/// The GetTodaysSalesReportAsync
+		/// The GetTodaysSalesReportAsync.
 		/// </summary>
-		/// <param name="businessDate">The businessDate<see cref="DateTime"/></param>
-		/// <returns>The <see cref="List{DataTable}"/></returns>
+		/// <param name="businessDate">The businessDate<see cref="DateTime"/>.</param>
+		/// <returns>The <see cref="List{DataTable}"/>.</returns>
 		public List<DataTable> GetTodaysSalesReportAsync(DateTime businessDate)
 		{
 			var param = new SqlParameter("@date", SqlDbType.Date);
@@ -112,12 +113,12 @@ namespace MammothAPI.Services
 		}
 
 		/// <summary>
-		/// The ExecuteDataTableSqlDA
+		/// The ExecuteDataTableSqlDA.
 		/// </summary>
-		/// <param name="cmdType">The cmdType<see cref="CommandType"/></param>
-		/// <param name="cmdText">The cmdText<see cref="string"/></param>
-		/// <param name="cmdParms">The cmdParms<see cref="SqlParameter[]"/></param>
-		/// <returns>The <see cref="DataSet"/></returns>
+		/// <param name="cmdType">The cmdType<see cref="CommandType"/>.</param>
+		/// <param name="cmdText">The cmdText<see cref="string"/>.</param>
+		/// <param name="cmdParms">The cmdParms<see cref="SqlParameter[]"/>.</param>
+		/// <returns>The <see cref="DataSet"/>.</returns>
 		private DataSet ExecuteDataTableSqlDA(CommandType cmdType, string cmdText, SqlParameter[] cmdParms)
 		{
 			using var sqlConnection = new SqlConnection(this.configuration.GetConnectionString("MammothDBConnectionString"));
@@ -133,10 +134,10 @@ namespace MammothAPI.Services
 		}
 
 		/// <summary>
-		/// The GetSalesData
+		/// The GetSalesData.
 		/// </summary>
-		/// <param name="businessDate">The businessDate<see cref="DateTime"/></param>
-		/// <returns>The <see cref="Task{List{SalesDetails}}"/></returns>
+		/// <param name="businessDate">The businessDate<see cref="DateTime"/>.</param>
+		/// <returns>The <see cref="Task{List{SalesDetails}}"/>.</returns>
 		private async Task<List<SalesDetails>> GetSalesData(DateTime businessDate)
 		{
 			var stores = await this.mammothDBContext.Stores.ToListAsync();
