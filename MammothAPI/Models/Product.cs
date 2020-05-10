@@ -7,28 +7,33 @@
 namespace MammothAPI.Models
 {
 	/// <summary>
-	/// Defines the <see cref="Product" />
+	/// Defines the <see cref="Product" />.
 	/// </summary>
 	public class Product
 	{
 		/// <summary>
-		/// Gets or sets the Group
+		/// Gets or sets the Group.
 		/// </summary>
 		public string Group { get; set; }
 
 		/// <summary>
-		/// Gets or sets the ID
+		/// Gets or sets the ID.
 		/// </summary>
 		public int? ID { get; set; }
 
 		/// <summary>
-		/// Gets or sets the IsActive
+		/// Gets or sets the IsActive.
 		/// </summary>
 		public bool? IsActive { get; set; }
 
 		/// <summary>
-		/// Gets or sets the Name
+		/// Gets or sets the Name.
 		/// </summary>
 		public string Name { get; set; }
+
+		/// <summary>
+		/// Gets or sets the Priority.
+		/// </summary>
+		public int Priority { get; set; }
 	}
 }

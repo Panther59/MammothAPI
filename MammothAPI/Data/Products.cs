@@ -15,6 +15,7 @@ namespace MammothAPI.Data
         public string Description { get; set; }
         public int? GroupId { get; set; }
         public bool IsActive { get; set; }
+        public int Priority { get; set; }
         public DateTime LastModifiedOn { get; set; }
         public int LastModifiedBy { get; set; }
 

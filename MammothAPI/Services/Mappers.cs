@@ -36,7 +36,8 @@ namespace MammothAPI.Services
 				ID = product.Id,
 				Group = product.Group != null ? product.Group.Name : null,
 				IsActive = product.IsActive,
-				Name = product.Name
+				Name = product.Name,
+				Priority = product.Priority
 			};
 		}
 

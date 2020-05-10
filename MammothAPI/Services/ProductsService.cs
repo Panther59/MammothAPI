@@ -46,6 +46,8 @@ namespace MammothAPI.Services
 		{
 			var products = await this.mammothDBContext.Products
 				.Include(x => x.Group)
+				.Where(x => x.IsActive)
+				.OrderBy(x => x.Priority)
 				.ToListAsync();
 
 			return products.Select(x => this.mappers.MapProduct(x)).ToList();

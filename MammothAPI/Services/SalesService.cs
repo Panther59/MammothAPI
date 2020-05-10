@@ -65,7 +65,7 @@ namespace MammothAPI.Services
 								   Product = ps,
 								   SaleCount = s != null ? (int?)s.SaleCount : null
 							   })
-						.OrderBy(x => x.Product.Id)
+						.OrderBy(x => x.Product.Priority)
 						.ToListAsync();
 
 
