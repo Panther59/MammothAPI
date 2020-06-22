@@ -6,53 +6,59 @@
 
 namespace MammothAPI.Services
 {
+	using log4net.Core;
 	using MammothAPI.Common;
 	using MammothAPI.Data;
 	using MammothAPI.Models;
 	using Microsoft.EntityFrameworkCore;
+	using Microsoft.Extensions.Logging;
 	using System;
 	using System.Linq;
 	using System.Threading.Tasks;
 
 	/// <summary>
-	/// Defines the <see cref="AuthenticateService" />
+	/// Defines the <see cref="AuthenticateService" />.
 	/// </summary>
 	public class AuthenticateService : IAuthenticateService
 	{
-		private readonly IMappers mappers;
-
 		/// <summary>
-		/// Defines the encryptionHelper
+		/// Defines the encryptionHelper.
 		/// </summary>
 		private readonly IEncryptionHelper encryptionHelper;
 
 		/// <summary>
-		/// Defines the mammothDBContext
+		/// Defines the mammothDBContext.
 		/// </summary>
 		private readonly MammothDBContext mammothDBContext;
 
 		/// <summary>
+		/// Defines the mappers.
+		/// </summary>
+		private readonly IMappers mappers;
+		private readonly ILogger<AuthenticateService> logger;
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="AuthenticateService"/> class.
 		/// </summary>
-		/// <param name="encryptionHelper">The encryptionHelper<see cref="IEncryptionHelper"/></param>
-		/// <param name="mammothDBContext">The mammothDBContext<see cref="MammothDBContext"/></param>
+		/// <param name="mappers">The mappers<see cref="IMappers"/>.</param>
+		/// <param name="encryptionHelper">The encryptionHelper<see cref="IEncryptionHelper"/>.</param>
+		/// <param name="mammothDBContext">The mammothDBContext<see cref="MammothDBContext"/>.</param>
 		public AuthenticateService(
 			IMappers mappers,
+			ILogger<AuthenticateService> logger,
 			IEncryptionHelper encryptionHelper,
 			MammothDBContext mammothDBContext)
 		{
 			this.mappers = mappers;
+			this.logger = logger;
 			this.encryptionHelper = encryptionHelper;
 			this.mammothDBContext = mammothDBContext;
 		}
 
-		/// <summary>
-		/// The AuthenticateStore
-		/// </summary>
-		/// <param name="request">The request<see cref="AuthenticateRequest"/></param>
-		/// <returns>The <see cref="Task{Store}"/></returns>
+		/// <inheritdoc />
 		public async Task<Store> AuthenticateStore(AuthenticateRequest request)
 		{
+			logger.LogInformation($"User is getting authenticate: {request.LoginName}");
 			var encPassword = this.encryptionHelper.Encrypt(request.Password);
 			var store = await this.mammothDBContext.Stores
 				.Include(x => x.Login)
@@ -61,31 +67,35 @@ namespace MammothAPI.Services
 
 			if (store != null)
 			{
-				if (store.Login.Password == encPassword)
+				if (store.Login.IsActive == false)
+				{
+					logger.LogError($"Store is no longer active: {request.LoginName}");
+					throw new UnauthorizedAccessException("Store is no longer active");
+				}
+				else if (store.Login.Password == encPassword)
 				{
 					var login = store.Login;
 					login.LastLogin = DateTime.Now;
 					this.mammothDBContext.Entry(login).State = EntityState.Modified;
 					await this.mammothDBContext.SaveChangesAsync();
 
+					logger.LogInformation($"User is authorized: {request.LoginName}");
 					return this.mappers.MapStore(store);
 				}
 				else
 				{
+					logger.LogError($"Invalid credential: {request.LoginName}");
 					throw new UnauthorizedAccessException("Invalid credential");
 				}
 			}
 			else
 			{
+				logger.LogError($"Login name doesn't exists: {request.LoginName}");
 				throw new UnauthorizedAccessException("Login name doesn't exists");
 			}
 		}
 
-		/// <summary>
-		/// The AuthenticateUser
-		/// </summary>
-		/// <param name="request">The request<see cref="AuthenticateRequest"/></param>
-		/// <returns>The <see cref="Task{User}"/></returns>
+		/// <inheritdoc />
 		public async Task<User> AuthenticateUser(AuthenticateRequest request)
 		{
 			var encPassword = this.encryptionHelper.Encrypt(request.Password);
@@ -97,7 +107,12 @@ namespace MammothAPI.Services
 			if (user != null)
 			{
 				var p = this.encryptionHelper.Decrypt(user.Login.Password);
-				if (user.Login.Password == encPassword)
+				if (user.Login.IsActive == false)
+				{
+					logger.LogError($"User is no longer active: {request.LoginName}");
+					throw new UnauthorizedAccessException("User is no longer active");
+				}
+				else if (user.Login.Password == encPassword)
 				{
 					var login = user.Login;
 					login.LastLogin = DateTime.Now;
@@ -116,6 +131,7 @@ namespace MammothAPI.Services
 			}
 		}
 
+		/// <inheritdoc />
 		public async Task ChangePassword(ChangePassword input)
 		{
 			if (input.StoreID.HasValue)
@@ -160,6 +176,7 @@ namespace MammothAPI.Services
 			}
 		}
 
+		/// <inheritdoc />
 		public async Task<AuthenticateResponse> GetCurrentLogin(int loginId)
 		{
 			var login = await this.mammothDBContext.Logins

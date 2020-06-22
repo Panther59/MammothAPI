@@ -66,6 +66,7 @@ namespace MammothAPI
 			services.AddScoped<IReportsService, ReportsService>();
 			services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
 
+			services.AddApplicationInsightsTelemetry();
 			services.AddMvc();
 		}
 

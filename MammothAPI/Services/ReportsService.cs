@@ -140,7 +140,7 @@ namespace MammothAPI.Services
 		/// <returns>The <see cref="Task{List{SalesDetails}}"/>.</returns>
 		private async Task<List<SalesDetails>> GetSalesData(DateTime businessDate)
 		{
-			var stores = await this.mammothDBContext.Stores.ToListAsync();
+			var stores = await this.mammothDBContext.Stores.Include(x => x.Login).Where(x => x.Login.IsActive).ToListAsync();
 			var storeSales = await this.mammothDBContext.Sales.Where(x => x.BusinessDate == businessDate).ToListAsync();
 			var productSales = await this.mammothDBContext.Sales.Where(x => x.BusinessDate == businessDate).GroupBy(x => x.StoreId).Select(x => new { StoreID = x.Key }).ToListAsync();
 
